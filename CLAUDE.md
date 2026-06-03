@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**⚠️ 语言规则：始终使用中文回复。所有对话、注释、commit 信息均使用中文。**
+
 ## 项目概述
 
 个人番茄时钟 Android APP — Flutter 开发，本地 SQLite 存储，完全离线，不上架商店。APK 直接安装使用。
