@@ -1,0 +1,14 @@
+# 项目在 Windows 环境下开发，统一换行符规则
+# Dart/Flutter 源文件使用 LF（Dart SDK 标准）
+*.dart text eol=lf
+# YAML/配置类文件使用 LF
+*.yaml text eol=lf
+*.md text eol=lf
+*.gradle text eol=lf
+*.properties text eol=lf
+# 二进制文件不转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.apk binary
+*.keystore binary
