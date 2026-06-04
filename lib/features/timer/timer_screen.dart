@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pomodoro_app/core/constants/app_strings.dart';
+import 'package:pomodoro_app/core/constants/app_colors.dart';
 import 'package:pomodoro_app/core/constants/app_durations.dart';
 import 'package:pomodoro_app/data/models/timer_session.dart';
 import 'providers/timer_provider.dart';
@@ -25,7 +26,18 @@ class TimerScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+
+            // ── Timer mode toggle ──
+            _ModeToggle(
+              isCountUp: timerState.isCountUp,
+              enabled: isIdle,
+              onChanged: (countUp) {
+                ref.read(timerProvider.notifier).setMode(countUp);
+              },
+            ),
+
+            const SizedBox(height: 8),
 
             // ── Category selector ──
             CategorySelector(
@@ -87,10 +99,49 @@ class TimerScreen extends ConsumerWidget {
       return;
     }
 
-    timerNotifier.start(
-      categoryId,
-      AppDurations.defaultFocusSeconds,
-      SessionType.focus,
+    if (timerState.isCountUp) {
+      timerNotifier.startCountUp(categoryId, SessionType.focus);
+    } else {
+      timerNotifier.start(
+        categoryId,
+        AppDurations.defaultFocusSeconds,
+        SessionType.focus,
+      );
+    }
+  }
+}
+
+/// ─── 计时模式切换 ─────────────────────────────────────────────────────────
+class _ModeToggle extends StatelessWidget {
+  final bool isCountUp;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  const _ModeToggle({
+    required this.isCountUp,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ChoiceChip(
+          label: const Text('倒计时'),
+          selected: !isCountUp,
+          onSelected: enabled ? (_) => onChanged(false) : null,
+          selectedColor: AppColors.accentPrimary.withAlpha(30),
+        ),
+        const SizedBox(width: 8),
+        ChoiceChip(
+          label: const Text('正计时'),
+          selected: isCountUp,
+          onSelected: enabled ? (_) => onChanged(true) : null,
+          selectedColor: AppColors.accentSuccess.withAlpha(30),
+        ),
+      ],
     );
   }
 }

@@ -32,6 +32,7 @@ class TimerState {
   final SessionType sessionType;
   final String? sessionId;
   final int startTime;
+  final bool isCountUp;
 
   const TimerState({
     this.status = TimerStatus.idle,
@@ -41,6 +42,7 @@ class TimerState {
     this.sessionType = SessionType.focus,
     this.sessionId,
     this.startTime = 0,
+    this.isCountUp = false,
   });
 
   TimerState copyWith({
@@ -51,6 +53,7 @@ class TimerState {
     SessionType? sessionType,
     String? sessionId,
     int? startTime,
+    bool? isCountUp,
     bool clearCategoryId = false,
     bool clearSessionId = false,
   }) {
@@ -63,6 +66,7 @@ class TimerState {
       sessionType: sessionType ?? this.sessionType,
       sessionId: clearSessionId ? null : (sessionId ?? this.sessionId),
       startTime: startTime ?? this.startTime,
+      isCountUp: isCountUp ?? this.isCountUp,
     );
   }
 
@@ -88,6 +92,14 @@ class TimerNotifier extends Notifier<TimerState> {
     if (state.status == TimerStatus.idle ||
         state.status == TimerStatus.finished) {
       state = state.copyWith(categoryId: categoryId);
+    }
+  }
+
+  /// 切换计时模式（仅空闲时可用）
+  void setMode(bool countUp) {
+    if (state.status == TimerStatus.idle ||
+        state.status == TimerStatus.finished) {
+      state = state.copyWith(isCountUp: countUp);
     }
   }
 
@@ -140,6 +152,49 @@ class TimerNotifier extends Notifier<TimerState> {
     timerService.start(durationSeconds, onComplete: _onComplete);
   }
 
+  /// 启动正计时（秒表模式）
+  Future<void> startCountUp(
+    String categoryId,
+    SessionType sessionType,
+  ) async {
+    if (state.status == TimerStatus.running ||
+        state.status == TimerStatus.paused) {
+      return;
+    }
+
+    final sessionRepo = ref.read(sessionRepositoryProvider);
+    final timerService = ref.read(timerServiceProvider);
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    // Create session record in DB (initial duration 0)
+    final session = await sessionRepo.insert(
+      categoryId: categoryId,
+      startTime: now,
+      durationSeconds: 0,
+      sessionType: sessionType,
+    );
+
+    _tickSubscription?.cancel();
+    _tickSubscription = timerService.onTick.listen((elapsed) {
+      if (elapsed >= 0) {
+        state = state.copyWith(remainingSeconds: elapsed);
+      }
+    });
+
+    state = TimerState(
+      status: TimerStatus.running,
+      remainingSeconds: 0,
+      totalSeconds: 0,
+      categoryId: categoryId,
+      sessionType: sessionType,
+      sessionId: session.id,
+      startTime: now,
+      isCountUp: true,
+    );
+
+    timerService.startCountUp();
+  }
+
   /// Pause the running timer.
   void pause() {
     if (state.status != TimerStatus.running) return;
@@ -154,23 +209,27 @@ class TimerNotifier extends Notifier<TimerState> {
     state = state.copyWith(status: TimerStatus.running);
   }
 
-  /// Stop the timer and mark the session as cancelled.
+  /// Stop the timer. 倒计时停止 → 取消；正计时停止 → 完成（保留已计时间）。
   Future<void> stop() async {
     if (state.status == TimerStatus.idle) return;
+
+    final isCountUp = state.isCountUp;
+    final elapsed = isCountUp
+        ? state.remainingSeconds // 正计时：remainingSeconds 存储的是已过秒数
+        : state.totalSeconds - state.remainingSeconds;
 
     ref.read(timerServiceProvider).stop();
     _tickSubscription?.cancel();
     _tickSubscription = null;
 
-    // Update session in DB as cancelled
+    // Update session in DB
     if (state.sessionId != null) {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final elapsed = state.totalSeconds - state.remainingSeconds;
       await ref.read(sessionRepositoryProvider).updateEndStatus(
             id: state.sessionId!,
             endTime: now,
-            durationSeconds: elapsed.clamp(0, state.totalSeconds),
-            status: SessionStatus.cancelled,
+            durationSeconds: elapsed.clamp(0, state.totalSeconds > 0 ? state.totalSeconds : elapsed),
+            status: isCountUp ? SessionStatus.completed : SessionStatus.cancelled,
           );
     }
 

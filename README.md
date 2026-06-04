@@ -1,17 +1,16 @@
-# pomodoro_app
+# 番茄时钟
 
-A new Flutter project.
+个人番茄时钟 Android APP — 专注学习计时器，Flutter 开发，本地 SQLite 存储，完全离线。
 
-## Getting Started
+## 更新日志
 
-This project is a starting point for a Flutter application.
+### v1.0.1
 
-A few resources to get you started if this is your first Flutter project:
+- 🐛 修复统计页切换维度时持续加载的问题
+- 🐛 修复设置子页面无返回按钮导致无法退出
+- ✨ 移除启动页激励语与等待，直接进入计时主页
+- ✨ 新增正计时（秒表）模式，支持倒计时/正计时切换
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### v1.0.0
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 🍅 初始版本：倒计时番茄钟、分类管理、统计分析、计划待办、提醒设置

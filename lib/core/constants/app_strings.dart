@@ -3,7 +3,7 @@ class AppStrings {
 
   // App
   static const String appName = '番茄时钟';
-  static const String appVersion = 'v1.0.0';
+  static const String appVersion = 'v1.0.1';
 
   // Tab labels
   static const String tabTimer = '计时';

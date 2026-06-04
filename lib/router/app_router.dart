@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../features/splash/splash_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/timer/timer_screen.dart';
 import '../features/statistics/statistics_screen.dart';
@@ -14,12 +13,8 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/',
+  initialLocation: '/home/timer',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashScreen(),
-    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return HomeScreen(navigationShell: navigationShell);

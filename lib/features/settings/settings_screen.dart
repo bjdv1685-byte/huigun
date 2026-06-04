@@ -107,7 +107,7 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text(AppStrings.categoryManagement),
             trailing: const Icon(Icons.chevron_right,
                 color: AppColors.textSecondary),
-            onTap: () => context.go('/settings/categories'),
+            onTap: () => context.push('/settings/categories'),
           ),
           ListTile(
             leading: const Icon(Icons.format_quote,
@@ -123,7 +123,7 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text(AppStrings.reminderSettings),
             trailing: const Icon(Icons.chevron_right,
                 color: AppColors.textSecondary),
-            onTap: () => context.go('/settings/reminders'),
+            onTap: () => context.push('/settings/reminders'),
           ),
 
           const Divider(),
@@ -138,7 +138,7 @@ class SettingsScreen extends ConsumerWidget {
               AppStrings.appVersion,
               style: AppTextStyles.caption,
             ),
-            onTap: () => context.go('/settings/about'),
+            onTap: () => context.push('/settings/about'),
           ),
         ],
       ),

@@ -20,13 +20,20 @@ class StatisticsScreen extends ConsumerStatefulWidget {
 class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
   String _selectedDimension = 'day';
   String? _selectedCategoryId;
+  late final DateTime _currentDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentDate = DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
     final params = StatisticsParams(
       dimension: _selectedDimension,
       categoryId: _selectedCategoryId,
-      date: DateTime.now(),
+      date: _currentDate,
     );
 
     final asyncData = ref.watch(statisticsProvider(params));
